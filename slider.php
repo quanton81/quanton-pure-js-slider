@@ -34,7 +34,7 @@
                 padding:0 24px;
                 right:0px;
                 height: calc(100% - 24px);
-				width: calc(100% - 110px);
+		width: calc(100% - 110px);
                 white-space: normal;
                 border:1px dashed #ccc;
                 margin: 5px 48px;
