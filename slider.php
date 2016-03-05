@@ -7,7 +7,7 @@
         <meta name="author" content="Dott. Anton Duoda">
         <meta http-equiv="X-UA-Compatible" content="IE=edge">
         <meta name="viewport" content="width=device-width, initial-scale=1">
-        <title>JS Slider</title>
+        <title>JS Div Slider</title>
         <style>
             .container {
                 border:1px solid #aaa; 
@@ -34,6 +34,7 @@
                 padding:0 24px;
                 right:0px;
                 height: calc(100% - 24px);
+				width: calc(100% - 110px);
                 white-space: normal;
                 border:1px dashed #ccc;
                 margin: 5px 48px;
@@ -265,6 +266,8 @@
         </script>
     </head>
     <body>
+		<h1>Javascript pure div slider (No jQuery)</h1>
+		<h2>Auto</h2>
         <div id="c1" class="container">
             <div>
                 1. Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever since the 1500s, when an unknown printer took a galley of type and scrambled it to make a type specimen book.
@@ -285,7 +288,8 @@
                 6. Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever since the 1500s, when an unknown printer took a galley of type and scrambled it to make a type specimen book.
             </div>
         </div>
-        <div id="c2" class="container">
+        <h2>Manual</h2>
+		<div id="c2" class="container">
             <div>
                 1. Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever since the 1500s, when an unknown printer took a galley of type and scrambled it to make a type specimen book.
             </div>
