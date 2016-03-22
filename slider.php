@@ -7,22 +7,26 @@
         <meta name="author" content="Dott. Anton Duoda">
         <meta http-equiv="X-UA-Compatible" content="IE=edge">
         <meta name="viewport" content="width=device-width, initial-scale=1">
-        <title>JS Div Slider</title>
+        <title>Quantum Javascript Div Slider</title>
         <style>
-            .container {
-                border:1px solid #aaa; 
+            .quantum-slider {
+                border-top:1px solid #aaa;
+                border-left:1px solid #aaa;
+                border-right:3px solid #aaa;
+                border-bottom:3px solid #aaa;
+                border-radius:8px; 
                 width:100%; 
-                margin:14px 0px; 
-                font-family:'trebuchet MS'; 
-                font-size:14px; 
+                margin:14px 0; 
+                color:#555; 
+                font-size:1em; 
                 display: block;
                 overflow: hidden;
                 position: relative;
-                height: 160px;
                 white-space: nowrap;
+                padding: 24px 0;
             }
             
-            .container div {
+            .quantum-slider .container {
                 position:relative;
                 display: inline-block;
                 -webkit-transition:all 0.5s ease-in-out;
@@ -30,284 +34,279 @@
                 -o-transition:all 0.5s ease-in-out;
                 -ms-transition:all 0.5s ease-in-out;
                 transition:all 0.5s ease-in-out 0s;
-                margin:0px;
-                padding:0 24px;
-                right:0px;
-                height: calc(100% - 24px);
-		width: calc(100% - 110px);
+                margin: 0 24px;
+                padding: 0 5px;
+                right:0;
+                width: calc(100% - 62px);
                 white-space: normal;
-                border:1px dashed #ccc;
-                margin: 5px 48px;
-                padding: 5px;
+                text-align: center;
+                vertical-align: middle;
             }
             
-            .container span {
+            .quantum-slider span {
                 cursor:pointer;
                 height:100%;
                 position:absolute;
-                width:48px;
+                width:24px;
                 margin: 0;
                 padding: 0;
-            }
-            
-            .container span:hover {
                 background-color:#eee;
             }
             
-            .container span:active {
+            .quantum-slider span:hover {
                 background-color:#ddd;
             }
             
-            .container span.prev {
+            .quantum-slider span:active {
+                background-color:#ccc;
+            }
+            
+            .quantum-slider span.prev {
                 background-image:url("arrow-left.png");
                 background-position:50% 50%;
                 background-repeat:no-repeat;
-                background-size:48px auto;
+                background-size:24px auto;
                 left:0;
                 top:0;
                 z-index:101;
             }
             
-            .container span.next {
+            .quantum-slider span.next {
                 background-image:url("arrow-right.png");
                 background-position:50% 50%;
                 background-repeat:no-repeat;
-                background-size:48px auto;
+                background-size:24px auto;
                 right:0;
                 top:0;
                 z-index:101;
             }
         </style>
-        <script>
-            var helpers = {};
-            helpers.once = function (fn, context) { 
-                var result;
-                return function() { 
-                    if(fn) {
-                        result = fn.apply(context || this, arguments);
-                        fn = null;
-                    }
-                    return result;
-                };
-            };
-            helpers.returnStyle = function (el, styleProp) {
-                var x = undefined;
-                if (el.currentStyle) {
-                    x = el.currentStyle[styleProp];
-                } else if (window.getComputedStyle) {
-                    x = document.defaultView.getComputedStyle(el,null).getPropertyValue(styleProp);
-                }
-                return x;
-            };
-            
-            
-            var jsSlider = function() {
-                var self = this;
-                this.container = undefined;
-                this.sliderInterval = undefined;
-                this.tr = undefined;
-                this.divs = undefined;
-                this.numCallsInteval = 0;
-                this.infiniteLoop = 0;
-                this.containerWidth = 0;
-                this.sliderIntervalTime = 4000;
-                this.deviation = 0;
-                this.divsMarginRight = 0;
-                this.divsMarginLeft = 0;
-                this.divsPaddingRight = 0;
-                this.divsPaddingLeft = 0;
-                this.divsBorderWidth = 0;
-                this.showNextPrev = function () {
-                    var spans = self.container.getElementsByTagName("span");
-                    for (var i = 0; i < spans.length; i++) {
-                        spans[i].style.display = 'block';
-                    }
-                };
-                this.hideNext = function () {
-                    self.showNextPrev();
-                    var spans = self.container.getElementsByTagName("span");
-                    spans[1].style.display = 'none';
-                };
-                this.hidePrev = function () {
-                    self.showNextPrev();
-                    var spans = self.container.getElementsByTagName("span");
-                    spans[0].style.display = 'none';
-                };
-                this.showNextSlide = function () {
-                    var r = parseInt(self.divs[0].style.right);
-                    r = (isNaN(r) ? 0 : r);
-                    if(!self.infiniteLoop && ((self.divs.length - 2) * self.containerWidth) === r) { // siamo sul ultimo td
-                        self.hideNext();
-                    } else {
-                        self.showNextPrev();
-                    }
-                    for (var i = 0; i < self.divs.length; i++) {
-                        if(self.infiniteLoop && ((self.divs.length - 1) * self.containerWidth) === r) { // siamo al primo td sposta in cima
-                            self.divs[i].style.right = '0px';
-                        } else {
-                            self.divs[i].style.right = r + self.containerWidth + 'px';
-                        }
-                    }
-                };
-                this.showNextSlideStopInterval = function () {
-                    self.showNextSlide();
-                    self.stopSlider();
-                };
-                this.showPrevSlide = function () {
-                    var r = parseInt(self.divs[0].style.right);
-                    r = (isNaN(r) ? 0 : r);
-                    if(!self.infiniteLoop && r === self.containerWidth) { // siamo al primo td
-                        self.hidePrev();
-                    } else {
-                        self.showNextPrev();
-                    }
-                    for (var i = 0; i < self.divs.length; i++) {
-                        if(self.infiniteLoop && r === 0) {
-                            self.divs[i].style.right = r + ((self.divs.length - 1) * self.containerWidth) + 'px'; // siamo al ultimo td
-                        } else {
-                            self.divs[i].style.right = r - self.containerWidth + 'px';
-                        }
-                    }
-                };
-                this.showPrevSlideStopInterval = function () {
-                     self.showPrevSlide();
-                     self.stopSlider();
-                };
-                this.stopSlider = helpers.once(function() {
-                    clearInterval(self.sliderInterval);
-                });
-                this.startSlider = function () {
-                    if(self.numCallsInteval > 0) {
-                        self.showNextSlide();
-                    }
-                    else {
-                        self.stopSlider();
-                    }
-                    self.numCallsInteval--;
-                };
-                this.resetSlider = function () {
-                    if(self.infiniteLoop) {
-                        self.stopSlider();
-                    } else {
-                        self.hidePrev();
-                    }
-                    self.containerWidth = self.container.offsetWidth;
-                    for (var i = 0; i < self.divs.length; i++) {
-                        self.divs[i].style.width = (self.containerWidth - self.deviation) + 'px';
-                        self.divs[i].style.right =  '0px';
-                    }
-                };
-                this.createSlider = function (id, infiniteLoop) {
-                    self.infiniteLoop = infiniteLoop;  
-                    self.container = document.getElementById(id);
-                    self.containerWidth = self.container.offsetWidth;
-                    var span1 = document.createElement('span');
-                    span1.className = 'next';
-                    span1.innerHTML = '&nbsp;';
-                    span1.onclick = self.showNextSlideStopInterval;
-                    self.container.appendChild(span1);
-                    var span2 = document.createElement('span');
-                    span2.className = 'prev';
-                    span2.innerHTML = '&nbsp;';
-                    span2.onclick = self.showPrevSlideStopInterval;
-                    self.container.insertBefore(span2 ,self.container.firstChild);
-                    self.divs = self.container.getElementsByTagName("div");
-                    self.divsMarginRight = helpers.returnStyle(self.divs[0], 'margin-right');
-                    self.divsMarginLeft = helpers.returnStyle(self.divs[0], 'margin-left');
-                    self.divsPaddingRight = helpers.returnStyle(self.divs[0], 'padding-right');
-                    self.divsPaddingLeft = helpers.returnStyle(self.divs[0], 'padding-left');
-                    self.divsBorderWidth = helpers.returnStyle(self.divs[0], 'border-width');
-                    
-                    self.deviation = parseInt(self.divsMarginRight) + parseInt(self.divsMarginLeft) + parseInt(self.divsPaddingRight) + parseInt(self.divsPaddingLeft) + parseInt(self.divsBorderWidth) * 2 + 4;
-                    
-                    for (var i = 0; i < self.divs.length; i++) {
-                        self.divs[i].style.width = (self.containerWidth - self.deviation) + 'px';
-                    }
-                    self.numCallsInteval = self.divs.length - 1;
-                    if(self.infiniteLoop) {
-                        self.sliderInterval = setInterval(function() {
-                            self.startSlider();
-                        }, self.sliderIntervalTime);
-                    } else {
-                        self.hidePrev();
-                    }
-                };
-            };
-            
-            function getStyle(el,styleProp)
-            {
-                var x = document.getElementById(el);
-                if (x.currentStyle)
-                    var y = x.currentStyle[styleProp];
-                else if (window.getComputedStyle)
-                    var y = document.defaultView.getComputedStyle(x,null).getPropertyValue(styleProp);
-                return y;
-            }
-
-            var jsSlider1 = new jsSlider();
-            var jsSlider2 = new jsSlider();
-            document.addEventListener( 'DOMContentLoaded', function () {
-                jsSlider1.createSlider("c1", 1);
-                jsSlider2.createSlider("c2", 0);
-            }, false );
-            
-            var resizing;
-            function resetSliders() {
-                jsSlider1.resetSlider();
-                jsSlider2.resetSlider();
-            }
-            
-            window.addEventListener('resize', function() {
-              clearTimeout(resizing);
-              resizing = setTimeout(resetSliders, 100);
-            }, false );
-            
-            
-        </script>
     </head>
     <body>
-		<h1>Javascript pure div slider (No jQuery)</h1>
-		<h2>Auto</h2>
-        <div id="c1" class="container">
-            <div>
-                1. Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever since the 1500s, when an unknown printer took a galley of type and scrambled it to make a type specimen book.
-            </div>
-            <div>
-                2. Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever since the 1500s, when an unknown printer took a galley of type and scrambled it to make a type specimen book.
-            </div>
-            <div>
-                3. Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever since the 1500s, when an unknown printer took a galley of type and scrambled it to make a type specimen book.
-            </div>
-            <div>
-                4. Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever since the 1500s, when an unknown printer took a galley of type and scrambled it to make a type specimen book.
-            </div>
-            <div>
-                5. Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever since the 1500s, when an unknown printer took a galley of type and scrambled it to make a type specimen book.
-            </div>
-            <div>
-                6. Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever since the 1500s, when an unknown printer took a galley of type and scrambled it to make a type specimen book.
-            </div>
-        </div>
-        <h2>Manual</h2>
-		<div id="c2" class="container">
-            <div>
-                1. Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever since the 1500s, when an unknown printer took a galley of type and scrambled it to make a type specimen book.
-            </div>
-            <div>
-                2. Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever since the 1500s, when an unknown printer took a galley of type and scrambled it to make a type specimen book.
-            </div>
-            <div>
-                3. Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever since the 1500s, when an unknown printer took a galley of type and scrambled it to make a type specimen book.
-            </div>
-            <div>
-                4. Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever since the 1500s, when an unknown printer took a galley of type and scrambled it to make a type specimen book.
-            </div>
-            <div>
-                5. Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever since the 1500s, when an unknown printer took a galley of type and scrambled it to make a type specimen book.
-            </div>
-            <div>
-                6. Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever since the 1500s, when an unknown printer took a galley of type and scrambled it to make a type specimen book.
-            </div>
-        </div>
+        <h1>Javascript pure div slider (No jQuery)</h1>
+        <h2>Slider with auto scrolling</h2>
+        <div id="s1" class="quantum-slider"><!-- 
+            --><div class="container">1. Lorem ipsum dolor sit amet, consectetur adipiscing elit. Praesent ultrices velit ac pulvinar varius. Etiam vitae nisl posuere, mollis tortor nec, ullamcorper sapien. Quisque vulputate viverra mauris, sit amet hendrerit neque aliquam ut.</div><!--
+            --><div class="container">2. Lorem ipsum dolor sit amet, consectetur adipiscing elit. Praesent ultrices velit ac pulvinar varius. Etiam vitae nisl posuere, mollis tortor nec, ullamcorper sapien. Quisque vulputate viverra mauris, sit amet hendrerit neque aliquam ut.</div><!--                                                         --><div class="container">3. Lorem ipsum dolor sit amet, consectetur adipiscing elit. Praesent ultrices velit ac pulvinar varius. Etiam vitae nisl posuere, mollis tortor nec, ullamcorper sapien. Quisque vulputate viverra mauris, sit amet hendrerit neque aliquam ut.</div><!--                                                         --><div class="container">4. Lorem ipsum dolor sit amet, consectetur adipiscing elit. Praesent ultrices velit ac pulvinar varius. Etiam vitae nisl posuere, mollis tortor nec, ullamcorper sapien. Quisque vulputate viverra mauris, sit amet hendrerit neque aliquam ut.</div><!--
+            --><div class="container">5. Lorem ipsum dolor sit amet, consectetur adipiscing elit. Praesent ultrices velit ac pulvinar varius. Etiam vitae nisl posuere, mollis tortor nec, ullamcorper sapien. Quisque vulputate viverra mauris, sit amet hendrerit neque aliquam ut.</div><!--
+        --></div>
+        <h2>Slider with manual scrolling</h2>
+        <div id="s2" class="quantum-slider"><!-- 
+            --><div class="container">1. Lorem ipsum dolor sit amet, consectetur adipiscing elit. Praesent ultrices velit ac pulvinar varius. Etiam vitae nisl posuere, mollis tortor nec, ullamcorper sapien. Quisque vulputate viverra mauris, sit amet hendrerit neque aliquam ut.</div><!--
+            --><div class="container">2. Lorem ipsum dolor sit amet, consectetur adipiscing elit. Praesent ultrices velit ac pulvinar varius. Etiam vitae nisl posuere, mollis tortor nec, ullamcorper sapien. Quisque vulputate viverra mauris, sit amet hendrerit neque aliquam ut.</div><!--                                                         --><div class="container">3. Lorem ipsum dolor sit amet, consectetur adipiscing elit. Praesent ultrices velit ac pulvinar varius. Etiam vitae nisl posuere, mollis tortor nec, ullamcorper sapien. Quisque vulputate viverra mauris, sit amet hendrerit neque aliquam ut.</div><!--                                                         --><div class="container">4. Lorem ipsum dolor sit amet, consectetur adipiscing elit. Praesent ultrices velit ac pulvinar varius. Etiam vitae nisl posuere, mollis tortor nec, ullamcorper sapien. Quisque vulputate viverra mauris, sit amet hendrerit neque aliquam ut.</div><!--
+            --><div class="container">5. Lorem ipsum dolor sit amet, consectetur adipiscing elit. Praesent ultrices velit ac pulvinar varius. Etiam vitae nisl posuere, mollis tortor nec, ullamcorper sapien. Quisque vulputate viverra mauris, sit amet hendrerit neque aliquam ut.</div><!--
+        --></div>
     </body>
+    <script>
+        var helpers = {};
+        helpers.once = function (fn, context) { 
+            var result;
+            return function() { 
+                if(fn) {
+                    result = fn.apply(context || this, arguments);
+                    fn = null;
+                }
+                return result;
+            };
+        };
+        helpers.isset = function () {
+            var a = arguments, l = a.length, i = 0, undef;
+            if (l === 0) {
+                throw new Error('Empty isset');
+            }
+            while (i !== l) {
+                if (a[i] === undef || a[i] === null) {
+                    return false;
+                }
+                i++;
+            }
+            return true;
+        };
+        helpers.empty = function (mixed_var) {
+            var undef, key, i, len;
+            var emptyValues = [undef, null, false, 0, '', '0'];
+            for (i = 0, len = emptyValues.length; i < len; i++) {
+                if (mixed_var === emptyValues[i]) {
+                    return true;
+                }
+            }
+            if (typeof mixed_var === 'object') {
+                for (key in mixed_var) {
+                    return false;
+                }   
+                return true;
+            }
+            return false;
+        };
+        helpers.returnStyle = function (el, styleProp) {
+            var x = undefined;
+            if (this.isset(el.currentStyle)) {
+                x = el.currentStyle[styleProp];
+            } else if (this.isset(window.getComputedStyle)) {
+                x = document.defaultView.getComputedStyle(el,null).getPropertyValue(styleProp);
+            }
+            if(this.empty(x)) {
+                x = '0px';
+            }
+            return x;
+        };
+        
+        var jsSlider = function() {
+            var self = this;
+            this.container = undefined;
+            this.sliderInterval = undefined;
+            this.tr = undefined;
+            this.divs = undefined;
+            this.numCallsInteval = 0;
+            this.infiniteLoop = 0;
+            this.containerWidth = 0;
+            this.sliderIntervalTime = 4000;
+            this.deviation = 0;
+            this.divsMarginRight = 0;
+            this.divsMarginLeft = 0;
+            this.divsPaddingRight = 0;
+            this.divsPaddingLeft = 0;
+            this.divsBorderLeftWidth = 0;
+            this.divsBorderRightWidth = 0;
+            this.showNextPrev = function () {
+                var spans = self.container.getElementsByTagName("span");
+                for (var i = 0; i < spans.length; i++) {
+                    spans[i].style.display = 'block';
+                }
+            };
+            this.hideNext = function () {
+                self.showNextPrev();
+                var spans = self.container.getElementsByTagName("span");
+                spans[1].style.display = 'none';
+            };
+            this.hidePrev = function () {
+                self.showNextPrev();
+                var spans = self.container.getElementsByTagName("span");
+                spans[0].style.display = 'none';
+            };
+            this.showNextSlide = function () {
+                var r = parseInt(self.divs[0].style.right);
+                r = (isNaN(r) ? 0 : r);
+                if(!self.infiniteLoop && ((self.divs.length - 2) * (self.containerWidth)) === r) {
+                    self.hideNext();
+                } else {
+                    self.showNextPrev();
+                }
+                for (var i = 0; i < self.divs.length; i++) {
+                    if(self.infiniteLoop && ((self.divs.length - 1) * (self.containerWidth)) === r) {
+                        self.divs[i].style.right = '0px';
+                    } else {
+                        self.divs[i].style.right = r + (self.containerWidth) + 'px';
+                    }
+                }
+            };
+            this.showNextSlideStopInterval = function () {
+                self.showNextSlide();
+                self.stopSlider();
+            };
+            this.showPrevSlide = function () {
+                var r = parseInt(self.divs[0].style.right);
+                r = (isNaN(r) ? 0 : r);
+                if(!self.infiniteLoop && r === (self.containerWidth)) {
+                    self.hidePrev();
+                } else {
+                    self.showNextPrev();
+                }
+                for (var i = 0; i < self.divs.length; i++) {
+                    if(self.infiniteLoop && r === 0) {
+                        self.divs[i].style.right = r + ((self.divs.length - 1) * (self.containerWidth)) + 'px';
+                    } else {
+                        self.divs[i].style.right = r - (self.containerWidth) + 'px';
+                    }
+                }
+            };
+            this.showPrevSlideStopInterval = function () {
+                self.showPrevSlide();
+                self.stopSlider();
+            };
+            this.stopSlider = helpers.once(function() {
+                clearInterval(self.sliderInterval);
+            });
+            this.startSlider = function () {
+                if(self.numCallsInteval > 0) {
+                    self.showNextSlide();
+                }
+                else {
+                    self.stopSlider();
+                }
+                self.numCallsInteval--;
+            };
+            this.resetSlider = function () {
+                if(self.infiniteLoop) {
+                    self.stopSlider();
+                } else {
+                    self.hidePrev();
+                }
+                self.containerWidth = self.container.offsetWidth;
+                for (var i = 0; i < self.divs.length; i++) {
+                    self.divs[i].style.width = (self.containerWidth - self.deviation) + 'px';
+                    self.divs[i].style.right =  '0px';
+                }
+            };
+            this.createSlider = function (id, infiniteLoop) {
+                self.infiniteLoop = infiniteLoop;  
+                self.container = document.getElementById(id);
+                self.containerWidth = self.container.offsetWidth;
+                var span1 = document.createElement('span');
+                span1.className = 'next';
+                span1.innerHTML = '&nbsp;';
+                span1.onclick = self.showNextSlideStopInterval;
+                self.container.appendChild(span1);
+                var span2 = document.createElement('span');
+                span2.className = 'prev';
+                span2.innerHTML = '&nbsp;';
+                span2.onclick = self.showPrevSlideStopInterval;
+                self.container.insertBefore(span2 ,self.container.firstChild);
+                self.divs = self.container.getElementsByClassName("container");
+                self.divsMarginRight = helpers.returnStyle(self.divs[0], 'margin-right');
+                self.divsMarginLeft = helpers.returnStyle(self.divs[0], 'margin-left');
+                self.divsPaddingRight = helpers.returnStyle(self.divs[0], 'padding-right');
+                self.divsPaddingLeft = helpers.returnStyle(self.divs[0], 'padding-left');
+                self.divsBorderLeftWidth = helpers.returnStyle(self.divs[0], 'border-left-width');
+                self.divsBorderRightWidth = helpers.returnStyle(self.divs[0], 'border-right-width');
+                
+                self.deviation = 
+                    parseInt(self.divsMarginRight) 
+                    + parseInt(self.divsMarginLeft) 
+                    + parseInt(self.divsPaddingRight) 
+                    + parseInt(self.divsPaddingLeft) 
+                    + parseInt(self.divsBorderLeftWidth) 
+                    + parseInt(self.divsBorderRightWidth);
+                for (var i = 0; i < self.divs.length; i++) {
+                    self.divs[i].style.width = (self.containerWidth - self.deviation) + 'px';
+                }
+                self.numCallsInteval = self.divs.length - 1;
+                if(self.infiniteLoop) {
+                    self.sliderInterval = setInterval(function() {
+                        self.startSlider();
+                    }, self.sliderIntervalTime);
+                } else {
+                    self.hidePrev();
+                }
+            };
+        };
+        
+        var jsSlider1 = new jsSlider();
+        var jsSlider2 = new jsSlider();
+        document.addEventListener( 'DOMContentLoaded', function () {
+            jsSlider1.createSlider("s1", 1);
+            jsSlider2.createSlider("s2", 0);
+        }, false );
+        
+        var resizing;
+        function resetSliders() {
+            jsSlider1.resetSlider();
+            jsSlider2.resetSlider();
+        }
+        
+        window.addEventListener('resize', function() {
+            clearTimeout(resizing);
+            resizing = setTimeout(resetSliders, 100);
+        }, false );
+    </script>
 </html>
