@@ -1,4 +1,4 @@
-# quantum-slider
+# quantum-pure-js-slider
 A very simple pure javascript div slider (No jQuery) 
 Demo
 --------------------------------------
