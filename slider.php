@@ -4,7 +4,7 @@
         <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
         <meta name="description" content="Pure simple javascript div slider">
         <meta name="keywords" content="javascript slider, javascript div slider, pure javascript div slider">
-        <meta name="author" content="Dott. Anton Duoda">
+        <meta name="author" content="Quanton81">
         <meta http-equiv="X-UA-Compatible" content="IE=edge">
         <meta name="viewport" content="width=device-width, initial-scale=1">
         <title>Quantum Javascript Div Slider</title>
