@@ -153,6 +153,17 @@
             --><div class="element">5. Lorem ipsum dolor sit amet, consectetur adipiscing elit. Integer facilisis id velit sed accumsan. Mauris sodales eros nec justo semper sagittis. Praesent nisl mauris, lacinia ac laoreet quis, posuere sed enim. Vestibulum quis congue nisl.</div><!--
             --><div class="element">6. Lorem ipsum dolor sit amet, consectetur adipiscing elit. Donec vel blandit nisi. Sed id magna mattis dolor convallis vulputate. Aenean justo leo, laoreet id est.</div><!--
         --></div>
+        <h3>Slider with only 1 visible div and custom arrows</h3>
+        <div id="sm1_a" class="quantum-slider"><!-- 
+            --><span id="prev" class="ctrl-selector"></span><!-- 
+            --><div class="element">1. Lorem ipsum dolor sit amet, consectetur adipiscing elit. Donec ornare lacinia ligula vel vehicula. Phasellus.</div><!--
+            --><div class="element">2. Lorem ipsum dolor sit amet, consectetur adipiscing elit. Donec vel blandit nisi. Sed id magna mattis dolor convallis vulputate. Aenean justo leo, laoreet id est.</div><!--                                                         
+            --><div class="element">3. Lorem ipsum dolor sit amet, consectetur adipiscing elit. Integer facilisis id velit sed accumsan. Mauris sodales eros nec justo semper sagittis. Praesent nisl mauris, lacinia ac laoreet quis, posuere sed enim. Vestibulum quis congue nisl.</div><!--
+            --><div class="element">4. Lorem ipsum dolor sit amet, consectetur adipiscing elit. Suspendisse tempor suscipit enim, eu bibendum leo. Praesent sit amet lectus vitae dolor ornare dictum. Pellentesque accumsan, urna in facilisis tincidunt, felis diam euismod augue, ac mollis tortor nibh quis diam. Duis semper tincidunt aliquam. Nam malesuada.</div><!--
+            --><div class="element">5. Lorem ipsum dolor sit amet, consectetur adipiscing elit. Integer facilisis id velit sed accumsan. Mauris sodales eros nec justo semper sagittis. Praesent nisl mauris, lacinia ac laoreet quis, posuere sed enim. Vestibulum quis congue nisl.</div><!--
+            --><div class="element">6. Lorem ipsum dolor sit amet, consectetur adipiscing elit. Donec vel blandit nisi. Sed id magna mattis dolor convallis vulputate. Aenean justo leo, laoreet id est.</div><!--
+            --><span id="next" class="ctrl-selector"></span><!-- 
+        --></div>
         <h3>Slider with 2 visible divs</h3>
         <div id="sm2" class="quantum-slider"><!-- 
             --><div class="element">1. Lorem ipsum dolor sit amet, consectetur adipiscing elit. Donec ornare lacinia ligula vel vehicula. Phasellus.</div><!--
@@ -235,8 +246,9 @@
         // loop - loop or not, 
         // sliderIntervalTime - milisecconds between loops, 
         // divsNumberShow - number of divs inside container, 
-        // infiniteLoops - loop infinitely or not 
-        var jsSlider = function(id, loop, sliderIntervalTime, divsNumberShow, infiniteLoops) {
+        // infiniteLoops - loop infinitely or not,
+        // customArrows - should it create arrows or find them
+        var jsSlider = function(id, loop, sliderIntervalTime, divsNumberShow, infiniteLoops, customArrows) {
             var self = this;
             this.container = undefined;
             this.containerMarginRight = 0;
@@ -264,6 +276,7 @@
             this.divsBorderRightWidth = 0;
             this.pager = undefined;
             this.pagerCounter = 0;
+            this.customArrows = 0;
             this.hideNext = function () {
                 self.showNextPrev();
                 var ctrlSelectors = self.container.getElementsByClassName("ctrl-selector");
@@ -400,24 +413,35 @@
                     + parseInt(self.divsBorderLeftWidth)
                     + parseInt(self.divsBorderRightWidth)) * self.divsNumberShow;
             };
-            this.createSlider = function (id, loop, sliderIntervalTime, divsNumberShow, infiniteLoops) {
+            this.createSlider = function (id, loop, sliderIntervalTime, divsNumberShow, infiniteLoops, customArrows) {
                 if(helpers.isset(id)) {
                     self.loop = helpers.isset(loop) ? loop : 1;  
                     self.sliderIntervalTime = helpers.isset(sliderIntervalTime) ? sliderIntervalTime : 4000;
                     self.divsNumberShow = helpers.isset(divsNumberShow) ? divsNumberShow : 1;
                     self.container = document.getElementById(id);
-                    var ctrlSelectorNext = document.createElement('span');
-                    ctrlSelectorNext.id = 'next';
-                    ctrlSelectorNext.className = 'ctrl-selector';
-                    ctrlSelectorNext.innerHTML = '&nbsp;';
-                    ctrlSelectorNext.onclick = self.showNextSlideStopInterval;
-                    self.container.appendChild(ctrlSelectorNext);
-                    var ctrlSelectorPrev = document.createElement('span');
-                    ctrlSelectorPrev.id = 'prev';
-                    ctrlSelectorPrev.className = 'ctrl-selector';
-                    ctrlSelectorPrev.innerHTML = '&nbsp;';
-                    ctrlSelectorPrev.onclick = self.showPrevSlideStopInterval;
-                    self.container.insertBefore(ctrlSelectorPrev ,self.container.firstChild);
+                    self.customArrows = helpers.isset(customArrows) ? customArrows : 0;
+                    if (customArrows === 1) {
+                        var ctrlSelectorNext = document.querySelector('.ctrl-selector#next');
+                        ctrlSelectorNext.onclick = self.showNextSlideStopInterval;
+                    } else {
+                        var ctrlSelectorNext = document.createElement('span');
+                        ctrlSelectorNext.id = 'next';
+                        ctrlSelectorNext.className = 'ctrl-selector';
+                        ctrlSelectorNext.innerHTML = '&nbsp;';
+                        ctrlSelectorNext.onclick = self.showNextSlideStopInterval;
+                        self.container.appendChild(ctrlSelectorNext);
+                    }
+                    if (customArrows === 1) {
+                        var ctrlSelectorPrev = document.querySelector('.ctrl-selector#prev');
+                        ctrlSelectorPrev.onclick = self.showPrevSlideStopInterval;
+                    } else {
+                        var ctrlSelectorPrev = document.createElement('span');
+                        ctrlSelectorPrev.id = 'prev';
+                        ctrlSelectorPrev.className = 'ctrl-selector';
+                        ctrlSelectorPrev.innerHTML = '&nbsp;';
+                        ctrlSelectorPrev.onclick = self.showPrevSlideStopInterval;
+                        self.container.insertBefore(ctrlSelectorPrev ,self.container.firstChild);
+                    }
                     self.pager = document.createElement('div');
                     self.pager.className = 'pager';
                     self.container.appendChild(self.pager);
@@ -458,7 +482,7 @@
                     self.pagerReset();
                 }
             };
-            this.createSlider(id, loop, sliderIntervalTime, divsNumberShow, infiniteLoops);
+            this.createSlider(id, loop, sliderIntervalTime, divsNumberShow, infiniteLoops, customArrows);
         };
         
         var sliders = [];
@@ -469,6 +493,7 @@
             sliders.push(new jsSlider("sa2", 1, 4000, 2, 1));
             sliders.push(new jsSlider("sa3", 1, 4000, 3, 0));
             sliders.push(new jsSlider("sm1", 0, 4000, 1));
+            sliders.push(new jsSlider("sm1_a", 0, 4000, 1, 0, 1));
             sliders.push(new jsSlider("sm2", 0, 4000, 2));
             sliders.push(new jsSlider("sm3", 0, 4000, 3));
         }, false );
